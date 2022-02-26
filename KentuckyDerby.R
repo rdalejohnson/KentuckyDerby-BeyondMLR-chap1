@@ -58,6 +58,10 @@ starters_hist <- ggplot(data = derby.df, aes(x = starters)) +
 
 grid.arrange(speed_hist, starters_hist, ncol = 2)
 
+
+summary(select(derby.df, -c(winner, year, yearnew, fast,  good, fastfactor)))
+
+
 ########### Racetrack Condition frequencies/histogram/treemap ##############
 
 #frequency table with percentages
@@ -117,3 +121,18 @@ gg[4,1] <- gg[4,1] + geom_histogram( binwidth = 0.75)
 gg[2,1] <- gg[2,1] + geom_histogram( binwidth = 20)
 gg[3,1] <- gg[3,1] + geom_histogram( binwidth = 3)
 gg
+
+
+library(lares)
+
+#Negatives in red/Positives in blue
+
+corr_cross(derby.df, # name of dataset
+           max_pvalue = 0.05, # display only significant correlations (at 5% level)
+           top = 20 # display top X couples of variables (by correlation coefficient)
+)
+
+ggplot(derby.df, aes(x = year, y = speed, colour = fastfactor)) +
+  geom_point(aes(shape = fastfactor)) +
+  geom_smooth(aes(linetype = fastfactor), method = lm, se = FALSE)
+
