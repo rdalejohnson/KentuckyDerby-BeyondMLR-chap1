@@ -3,11 +3,11 @@
 #February 25, 2022
 
 #Description of using grid and cowplot
-#http://www.sthda.com/english/wiki/wiki.php?id_contents=7930
+  #http://www.sthda.com/english/wiki/wiki.php?id_contents=7930
+
 
 library(tidyverse)  
 library(ggplot2)
-#install.packages("gridExtra")
 library("gridExtra")
 
 derby.df <- read.csv(
@@ -22,7 +22,8 @@ derby.df <- read.csv(
 head(derby.df) #first six rows
 tail(derby.df) #last six rows
 
-#add a set of descriptive/categorical columns
+#add a small set of indicator/binary columns
+#add a factor variable to make an indicator (fast) more readable
 
 derby.df <- derby.df %>%
   mutate( fast = ifelse(condition=="fast",1,0), 
@@ -38,6 +39,7 @@ tail(derby.df) #last six rows
 #  filter(row_number() < 6 | row_number() > 117)
 
 
+################### UNIVARIATE ANALYSIS ###################
 
 speed_hist <- ggplot(data = derby.df, aes(x = speed)) + 
   geom_histogram(binwidth = 0.5, fill = "white",
@@ -51,4 +53,46 @@ starters_hist <- ggplot(data = derby.df, aes(x = starters)) +
 
 grid.arrange(speed_hist, starters_hist, ncol = 2)
 
+########### categorical frequencies ##############
 
+#frequency table with percentages
+library(summarytools)
+freqTableTrackConditions <- as.data.frame.matrix(summarytools::freq(derby.df$condition, order = "freq"))
+
+# HISTOGRAM
+
+library(ggplot2)
+ggplot(derby.df, aes(x = condition)) +  geom_bar()
+
+# TREEMAP
+
+conditionFrequencies <-setNames(data.frame(table(derby.df$condition)), c("Track Condition", "Freq"))
+
+library(treemap)
+
+treemap(conditionFrequencies,
+        
+        # data
+        index="Track Condition",
+        vSize="Freq",
+        type="index",
+        
+        # Main
+        title="Track Conditions",
+        palette="Dark2",
+        
+        # Borders:
+        border.col=c("black"),             
+        border.lwds=1,                         
+        
+        # Labels
+        fontsize.labels=18,
+        fontcolor.labels="white",
+        fontface.labels=1         
+        # #bg.labels=c("transparent"),              
+        # align.labels=c("left", "top"),                                  
+        # overlap.labels=0.5,
+        #inflate.labels=T # If true, labels are bigger when rectangle is bigger.
+        
+        
+)
