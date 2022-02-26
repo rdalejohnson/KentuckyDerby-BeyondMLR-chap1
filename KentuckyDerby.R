@@ -8,7 +8,8 @@
 
 library(tidyverse)  
 library(ggplot2)
-library("gridExtra")
+library(GGally)
+library(gridExtra)
 
 derby.df <- read.csv(
   file = "derbyplus.csv",
@@ -39,12 +40,16 @@ tail(derby.df) #last six rows
 #  filter(row_number() < 6 | row_number() > 117)
 
 
-################### UNIVARIATE ANALYSIS ###################
+###################################### UNIVARIATE ANALYSIS ####################################
+
+#### Histogram of Winning Speeds #####
 
 speed_hist <- ggplot(data = derby.df, aes(x = speed)) + 
   geom_histogram(binwidth = 0.5, fill = "white",
                  color = "black") + 
   xlab("Winning speed (ft/s)") + ylab("Frequency") + labs(title="(a)")
+
+#### Histogram of # of starters in race #####
 
 starters_hist <- ggplot(data = derby.df, aes(x = starters)) + 
   geom_histogram(binwidth = 3, fill = "white",
@@ -53,7 +58,7 @@ starters_hist <- ggplot(data = derby.df, aes(x = starters)) +
 
 grid.arrange(speed_hist, starters_hist, ncol = 2)
 
-########### categorical frequencies ##############
+########### Racetrack Condition frequencies/histogram/treemap ##############
 
 #frequency table with percentages
 library(summarytools)
@@ -93,6 +98,22 @@ treemap(conditionFrequencies,
         # align.labels=c("left", "top"),                                  
         # overlap.labels=0.5,
         #inflate.labels=T # If true, labels are bigger when rectangle is bigger.
-        
-        
 )
+
+############################## BIVARIATE ANALYSIS ###################################
+
+#ggpairs produces a matrix of scatter plots for visualizing correlation
+#   data: data set. Can have both numerical and categorical data.
+#   columns: columns to be used for the plots. Default is all columns.
+#   title: title for the graph
+#   axisLabels: Allowed values are either “show” to display axisLabels, “internal” for labels in the diagonal plots, or “none” for no axis labels
+#   columnLabels: label names to be displayed. Defaults to names of columns being used.
+
+
+
+gg <- ggpairs(data = derby.df, title="Kentucky Derby Bivariate Analysis",
+              columns = c("condition", "year", "starters", "speed"))
+gg[4,1] <- gg[4,1] + geom_histogram( binwidth = 0.75)
+gg[2,1] <- gg[2,1] + geom_histogram( binwidth = 20)
+gg[3,1] <- gg[3,1] + geom_histogram( binwidth = 3)
+gg
