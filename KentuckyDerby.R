@@ -35,6 +35,9 @@ derby.df <- derby.df %>%
 head(derby.df) #first six rows
 tail(derby.df) #last six rows
 
+str(derby.df)
+
+
 #another way to display head/tail rows
 #table1 <- derby.df %>%
 #  filter(row_number() < 6 | row_number() > 117)
@@ -42,12 +45,74 @@ tail(derby.df) #last six rows
 
 ###################################### UNIVARIATE ANALYSIS ####################################
 
+############# DESCRIPTIVE STATISTICS #########################
+#https://rpubs.com/bhagirathi_dash/ggplot_continous_outcome
+
+summary(select(derby.df, -c(winner, year, yearnew, fast,  good, fastfactor)))
+
+sqrt(count(derby.df))
+
+leanDerby <- select(derby.df, -c(winner, year, yearnew, fast,  good, fastfactor))
+
+by(leanDerby, leanDerby$condition,  summary)
+
+library(pacman)
+library(MASS)
+library(psych)
+
+t(describe(derby.df[c(4)])[, -1])
+
+#density plots in a grid
+grid.arrange(
+  
+  ggplot(data=derby.df) +
+    geom_density(mapping=aes(x=speed), color="blue"),
+  
+  ggplot(data=derby.df, mapping=aes(y=speed, x=1)) +
+    geom_boxplot(fill = "white", colour = "#3366FF", outlier.colour = "red") +
+    geom_text(aes(label = ifelse(speed %in% 
+                                   boxplot.stats(speed)$out,
+                                 as.character(speed), "")), hjust = 1.5),
+  # 
+  # ggplot(data=tbwt) +
+  #   geom_density(mapping=aes(x=bwt), color="red"),
+  
+  nrow=1,
+  
+  top="Density plots: Univariates")
+
+############ VISUAL DESCRIPTIVE ###########################
+
+
+hist(derby.df$speed)
+
+#rule of thumb, Sturges' law, number of bins should
+#be rounded value of the square root of the # of
+#observations
+#Example: 150 observations, sqrt = 12.24745, so 12 bins
+
+ggplot(derby.df) +
+  aes(x = speed) +
+  geom_histogram(fill = "white",
+                 color = "black",
+                 bins=round(sqrt(count(derby.df)))) + 
+  annotate("text", x = c(50, 50), y= c(20, 22), 
+            label =  c(paste("Bin size:", as.character(round(sqrt(count(derby.df))))),
+               paste("Observations:", as.character(count(derby.df))))
+          ) +
+  theme(panel.grid = element_line(color = "white",
+                                  size = 0.75,
+                                  linetype = 1))
+
+
 #### Histogram of Winning Speeds #####
 
 speed_hist <- ggplot(data = derby.df, aes(x = speed)) + 
   geom_histogram(binwidth = 0.5, fill = "white",
                  color = "black") + 
   xlab("Winning speed (ft/s)") + ylab("Frequency") + labs(title="(a)")
+
+speed_hist
 
 #### Histogram of # of starters in race #####
 
@@ -59,7 +124,6 @@ starters_hist <- ggplot(data = derby.df, aes(x = starters)) +
 grid.arrange(speed_hist, starters_hist, ncol = 2)
 
 
-summary(select(derby.df, -c(winner, year, yearnew, fast,  good, fastfactor)))
 
 
 ########### Racetrack Condition frequencies/histogram/treemap ##############
@@ -103,6 +167,28 @@ treemap(conditionFrequencies,
         # overlap.labels=0.5,
         #inflate.labels=T # If true, labels are bigger when rectangle is bigger.
 )
+
+gfg_plot <- ggplot(derby.df, aes(x = year, colour = condition)) +  
+  #geom_point(aes(y = speed), color = "black") +
+  geom_point(aes(y = starters), color = "red") +
+  #geom_smooth(aes(linetype = condition, y=speed), method = lm, se = FALSE) +
+  geom_smooth(aes(linetype = condition, y=starters), method = lm, se = FALSE)
+
+  #geom_line(aes(y = fastfactor), color = "green") 
+  #geom_line(aes(y = y4), color = "blue") +
+  #geom_line(aes(y = y5), color = "purple")
+gfg_plot
+
+gfg_plot2 <- ggplot(derby.df, aes(x = year, colour = condition)) +  
+  geom_point(aes(y = speed), color = "black") +
+  #geom_point(aes(y = starters), color = "red") +
+  geom_smooth(aes(linetype = condition, y=speed), method = lm, se = FALSE)
+  #geom_smooth(aes(linetype = condition, y=starters), method = lm, se = FALSE)
+
+#geom_line(aes(y = fastfactor), color = "green") 
+#geom_line(aes(y = y4), color = "blue") +
+#geom_line(aes(y = y5), color = "purple")
+gfg_plot2
 
 ############################## BIVARIATE ANALYSIS ###################################
 
