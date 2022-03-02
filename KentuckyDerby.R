@@ -84,6 +84,14 @@ grid.arrange(
 ############ VISUAL DESCRIPTIVE ###########################
 
 
+ggplot(derby.df, aes(y = speed, x = year)) + 
+  geom_jitter(position = position_jitter(height = 0, width = 0.2))
+
+
+ggplot(derby.df, aes(y = starters, x = year)) + 
+  geom_jitter(position = position_jitter(height = 0, width = 0.2))
+
+
 hist(derby.df$speed)
 
 #rule of thumb, Sturges' law, number of bins should
@@ -91,9 +99,9 @@ hist(derby.df$speed)
 #observations
 #Example: 150 observations, sqrt = 12.24745, so 12 bins
 
-ggplot(derby.df) +
+histogram1 <- ggplot(derby.df) +
   aes(x = speed) +
-  geom_histogram(fill = "white",
+  geom_histogram(fill = "white", 
                  color = "black",
                  bins=round(sqrt(count(derby.df)))) + 
   annotate("text", x = c(50, 50), y= c(20, 22), 
@@ -103,6 +111,9 @@ ggplot(derby.df) +
   theme(panel.grid = element_line(color = "white",
                                   size = 0.75,
                                   linetype = 1))
+
+
+histogram1
 
 
 #### Histogram of Winning Speeds #####
@@ -221,4 +232,37 @@ corr_cross(derby.df, # name of dataset
 ggplot(derby.df, aes(x = year, y = speed, colour = fastfactor)) +
   geom_point(aes(shape = fastfactor)) +
   geom_smooth(aes(linetype = fastfactor), method = lm, se = FALSE)
+
+
+####################### SIMPLE LINEAR MODELS ################
+
+model1 <- lm(speed ~ year, data = derby.df)
+
+coef(summary(model1))
+cat(" R squared = ", summary(model1)$r.squared, "\n", 
+    "Residual standard error = ", summary(model1)$sigma)
+
+###center so that the intercept is more meaningful
+#this only changes the intercept, not the year coefficient or
+#anything else
+
+model2 <- lm(speed ~ yearnew, data = derby.df)
+
+coef(summary(model2))
+cat(" R squared = ", summary(model2)$r.squared, "\n", 
+    "Residual standard error = ", summary(model2)$sigma)
+
+ggplot(derby.df, aes(x = year, y = speed)) +
+  geom_point() + xlim(0,2020) + ylim(0,55) +
+  geom_smooth(method = lm, se = FALSE, fullrange = TRUE) +
+  geom_vline(xintercept = 0, linetype = 2) +
+  geom_vline(xintercept = 1896, linetype = 2) +
+  geom_segment(aes(x = 100, y = 0, xend = 1800, yend = 0), 
+               arrow = arrow(length = unit(0.5, "cm")))
+
+
+# Residual diagnostics for Model 2
+par(mfrow=c(2,2))
+plot(model2)
+par(mfrow=c(1,1))
 
