@@ -41,35 +41,22 @@ modelg1
 #plotting residuals vs predicted with regression line
 qplot(bloodpressure.df$Predicted, bloodpressure.df$Residuals) + geom_smooth(method="lm", se=F )
 
+
+modelBP_Weight <- lm(bloodpressure.df$BP ~ bloodpressure.df$Weight)
+cor(x=bloodpressure.df$BP, bloodpressure.df$Weight)
+summary(modelBP_Weight)
+
+#using WEIGHT instead of the predicted values to generate a plot:
 qplot(bloodpressure.df$Weight, bloodpressure.df$Residuals) + geom_smooth(method="lm", se=F )
 
 
+#Above: There seems to be a strong linear relationship between BP and weight
+#Below: there does not seem to be a strong linear relationship between BP and
+#    duration
 
 
 
-
-model2 <- lm(BP ~ Weight, data = bloodpressure.df)
-
-modelg2 <- ggplot(bloodpressure.df, aes(x = Weight, y = BP)) + 
-  geom_point() +
-  stat_smooth(method = "lm", col = "red")
-
-modelg2
+qplot(bloodpressure.df$Dur, bloodpressure.df$Residuals) + geom_smooth(method="lm", se=F )
 
 
-
-model3 <- lm(BP ~ Dur, data = bloodpressure.df)
-
-modelg3 <- ggplot(bloodpressure.df, aes(x = Dur, y = BP)) + 
-  geom_point() +
-  stat_smooth(method = "lm", col = "red")
-
-modelg3
-
-
-
-# Residual diagnostics for Model 1
-par(mfrow=c(2,2))
-plot(model1)
-par(mfrow=c(1,1))
 
